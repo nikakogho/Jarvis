@@ -11,15 +11,15 @@
   - [X] Perform initial commit of skeleton
   - [X] Push to GitHub (manual or via `gh` CLI)
 
-- [ ] **Phase 2: Core LLM-chat CLI**
-  - [ ] Create & activate Python 3.11 virtual environment (`.venv`)
-  - [ ] Install dependencies:
-    - `openai` (or `azure-openai`)
+- [X] **Phase 2: Core LLM-chat CLI**
+  - [X] Create & activate Python 3.13 virtual environment (`.venv`)
+  - [X] Install dependencies:
+    - `openai`
     - `langchain`
-    - CLI framework (`typer` or `click`)
-  - [ ] Scaffold `chat.py` CLI with context persistence
-  - [ ] Implement `/shell` skill with Python `subprocess`
-  - [ ] Test basic conversation and shell execution
+    - CLI framework `typer`
+  - [X] Scaffold `chat.py` CLI with context persistence
+  - [X] Implement `/shell` skill with Python `subprocess`
+  - [X] Test basic conversation and shell execution
 
 - [ ] **Phase 3: Plugin Architecture & Skills**
   - [ ] Define plugin interface (`can_handle(input)`, `run(input)`)
