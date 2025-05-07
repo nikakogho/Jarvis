@@ -7,6 +7,7 @@ from openai import OpenAI
 
 from tools.plugin import Skill
 from tools.shell import ShellSkill
+from tools.browser import BrowserSkill
 
 app = typer.Typer()
 HISTORY = Path.home() / ".jarvis_history.json"
@@ -14,6 +15,7 @@ HISTORY = Path.home() / ".jarvis_history.json"
 # --- Plugin setup: only ShellSkill for now ---
 skills: list[Skill] = [
     ShellSkill(),
+    BrowserSkill(),
 ]
 
 def load_history() -> list[dict]:
@@ -62,6 +64,55 @@ def run_shell(cmd: str):
     # ensure prefix matches can_handle logic
     output = shell.run(f"shell {cmd}")
     typer.echo(output)
+
+@app.command()
+def repl():
+    """
+    Start an interactive Jarvis REPL.
+    Type 'exit' or 'quit' to stop.
+    """
+    typer.echo("🟢 Jarvis REPL started — type 'exit' or 'quit' to stop.")
+    history = load_history()
+    # make one ShellSkill and BrowserSkill live here
+    shell = ShellSkill()
+    browser = BrowserSkill()
+    local_skills = [shell, browser]
+
+    while True:
+        try:
+            msg = input("Jarvis> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            break
+
+        if msg.lower() in ("exit", "quit"):
+            break
+
+        # 1) plugin dispatch
+        handled = False
+        for skill in local_skills:
+            if skill.can_handle(msg):
+                output = skill.run(msg)
+                typer.echo(output)
+                handled = True
+                break
+
+        if handled:
+            continue
+
+        # 2) LLM fallback
+        history.append({"role": "user", "content": msg})
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=history,
+        )
+        reply = resp.choices[0].message.content
+        typer.echo(reply)
+        history.append({"role": "assistant", "content": reply})
+        save_history(history)
+
+    typer.echo("🔴 Jarvis REPL stopped.")
 
 if __name__ == "__main__":
     app()

@@ -23,9 +23,9 @@
 
 - [ ] **Phase 3: Plugin Architecture & Skills**
   - [X] Define plugin interface (`can_handle(input)`, `run(input)`)
-  - [ ] Develop browser control plugin (using Playwright or Pyppeteer)
+  - [ ] Develop browser control plugin using Playwright
   - [ ] Develop email automation plugin (IMAP/SMTP or Microsoft Graph API)
-  - [ ] Integrate MCPS as a plugin within the architecture
+  - [ ] Integrate MCPs as a plugin within the architecture
   - [ ] Develop calendar/task plugin (Outlook or Google Calendar integration)
 
 - [ ] **Phase 4: Scheduling & Persistence**
