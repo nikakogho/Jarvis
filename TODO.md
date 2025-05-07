@@ -22,7 +22,7 @@
   - [X] Test basic conversation and shell execution
 
 - [ ] **Phase 3: Plugin Architecture & Skills**
-  - [ ] Define plugin interface (`can_handle(input)`, `run(input)`)
+  - [X] Define plugin interface (`can_handle(input)`, `run(input)`)
   - [ ] Develop browser control plugin (using Playwright or Pyppeteer)
   - [ ] Develop email automation plugin (IMAP/SMTP or Microsoft Graph API)
   - [ ] Integrate MCPS as a plugin within the architecture
