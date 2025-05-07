@@ -1,21 +1,44 @@
-import os, json
+import os
+import json
 from pathlib import Path
-import subprocess
+
 import typer
 from openai import OpenAI
+
+from tools.plugin import Skill
+from tools.shell import ShellSkill
 
 app = typer.Typer()
 HISTORY = Path.home() / ".jarvis_history.json"
 
-def load_history():
-    return json.loads(HISTORY.read_text()) if HISTORY.exists() else []
+# --- Plugin setup: only ShellSkill for now ---
+skills: list[Skill] = [
+    ShellSkill(),
+]
 
-def save_history(h):
-    HISTORY.write_text(json.dumps(h, indent=2, ensure_ascii=False))
+def load_history() -> list[dict]:
+    if HISTORY.exists():
+        return json.loads(HISTORY.read_text())
+    return []
+
+def save_history(history: list[dict]) -> None:
+    HISTORY.write_text(json.dumps(history, indent=2, ensure_ascii=False))
 
 @app.command()
 def chat(message: str):
-    """Send MESSAGE to Jarvis and print the response."""
+    """
+    Send MESSAGE to Jarvis.  
+    First, check if any skill can handle it;  
+    if not, fall back to the LLM.
+    """
+    # 1) Try skills
+    for skill in skills:
+        if skill.can_handle(message):
+            output = skill.run(message)
+            typer.echo(output)
+            return
+
+    # 2) Otherwise, go to the LLM
     history = load_history()
     history.append({"role": "user", "content": message})
 
@@ -32,9 +55,13 @@ def chat(message: str):
 
 @app.command("shell")
 def run_shell(cmd: str):
-    """Run a shell command and return stdout/stderr."""
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-    typer.echo(result.stdout or result.stderr)
+    """
+    (Alias) Run a shell command via the ShellSkill.
+    """
+    shell = ShellSkill()
+    # ensure prefix matches can_handle logic
+    output = shell.run(f"shell {cmd}")
+    typer.echo(output)
 
 if __name__ == "__main__":
     app()
